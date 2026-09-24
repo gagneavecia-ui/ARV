@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0A0A0A">
+  <title>ARVEXA | Accès</title>
+  <link rel="icon" href="icon.png" type="image/png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap">
+  <link rel="preload" as="image" href="icon.png" fetchpriority="high">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap">
+  <link rel="stylesheet" href="assets/arvexa-tokens.css">
+  <link rel="stylesheet" href="assets/arvexa-core.css">
+
+  <style>
+    body {
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at top right, rgba(28,70,52,.38), transparent 32rem),
+        linear-gradient(180deg, #0a0d0b, #101511);
+    }
+    .choice-card {
+      width: min(100%, 460px);
+      padding: 32px 26px;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-xl);
+      background: rgba(21,26,21,.94);
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+      animation: arvFadeIn .5s cubic-bezier(.25,1,.5,1);
+    }
+    @keyframes arvFadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .choice-logo {
+      font: 700 24px var(--font-serif);
+      color: var(--text-light);
+      letter-spacing: .04em;
+      margin-bottom: 6px;
+    }
+    .choice-logo span { color: var(--accent-bright); font-style: italic; }
+    .choice-title {
+      font: 700 clamp(24px, 5vw, 32px)/1.15 var(--font-serif);
+      color: var(--text-light);
+      margin: 20px 0 12px;
+      letter-spacing: -0.02em;
+    }
+    .choice-title em { color: var(--accent-bright); font-style: italic; }
+    .choice-sub {
+      color: var(--text-dim);
+      font-size: 14px;
+      line-height: 1.65;
+      margin: 0 auto 26px;
+      max-width: 340px;
+    }
+    .choice-actions {
+      display: grid;
+      gap: 10px;
+    }
+    .choice-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      min-height: 50px;
+      transition: var(--transition);
+      font-family: var(--font-body);
+    }
+    .choice-btn.primary {
+      background: linear-gradient(135deg, var(--accent-bright), var(--accent));
+      color: #0A0A0A;
+      box-shadow: 0 4px 20px rgba(184, 134, 11, 0.2);
+    }
+    .choice-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(184, 134, 11, 0.35);
+    }
+    .choice-btn.secondary {
+      border: 1px solid var(--border-soft);
+      color: var(--text-light);
+      background: transparent;
+    }
+    .choice-btn.secondary:hover {
+      border-color: rgba(184,134,11,.3);
+      background: rgba(184,134,11,.05);
+    }
+    #loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 0;
+    }
+    #loading p { color: var(--text-dim); font-size: 13.5px; margin: 0; }
+  </style>
+
+  <script src="assets/arvexa-transitions.js" defer></script>
+</head>
+<body>
+
+  <div class="choice-card">
+    <div class="choice-logo">ARVEX<span>A School</span></div>
+
+    <div id="loading">
+      <div class="arv-loading-spinner" style="width:32px;height:32px;border:3px solid rgba(184,134,11,.15);border-top-color:var(--accent-bright);border-radius:50%;animation:arvSpin .8s linear infinite;"></div>
+      <p>Vérification de ta session...</p>
+    </div>
+
+    <div id="choice" hidden>
+      <h1 class="choice-title">Bienvenue sur <em>ARVEXA</em></h1>
+      <p class="choice-sub">
+        Choisis ton parcours. Un visiteur non connecté n'est pas automatiquement
+        considéré comme déjà inscrit.
+      </p>
+      <div class="choice-actions">
+        <a class="choice-btn primary" id="registerLink" href="register.html">
+          <i class="fas fa-user-plus"></i>
+          Créer un compte
+        </a>
+        <a class="choice-btn secondary" id="loginLink" href="login.html">
+          <i class="fas fa-sign-in-alt"></i>
+          J'ai déjà un compte
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "firebase/auth": "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+  // ================================================================
+  // AUTH-CHOICE.HTML — Logique métier
+  // ================================================================
+
+  import { auth } from './assets/arvexa-firebase.js';
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+  // Masquer la page tant qu'on n'a pas résolu l'auth
+  document.documentElement.classList.add('arv-auth-hard-wait');
+
+  const loadingEl = document.getElementById('loading');
+  const choiceEl = document.getElementById('choice');
+
+  // Récupérer la destination après connexion
+  const redirect = sessionStorage.getItem('redirectAfterAuth')
+    || sessionStorage.getItem('redirectAfterLogin')
+    || 'index.html';
+  const target = encodeURIComponent(redirect);
+
+  document.getElementById('registerLink').href = `register.html?redirect=${target}`;
+  document.getElementById('loginLink').href = `login.html?redirect=${target}`;
+
+  // ================================================================
+  // RÉSOLUTION DE L'AUTH
+  // ================================================================
+  let resolved = false;
+
+  onAuthStateChanged(auth, (user) => {
+    if (resolved) return;
+    resolved = true;
+
+    // Utilisateur connecté → redirection immédiate
+    if (user) {
+      sessionStorage.removeItem('redirectAfterAuth');
+      sessionStorage.removeItem('redirectAfterLogin');
+      // Sécurité : n'accepter que des chemins relatifs
+      const safe = redirect.startsWith('/') || (!redirect.includes(':') && !redirect.startsWith('//'))
+        ? redirect
+        : 'index.html';
+      location.replace(safe);
+      return;
+    }
+
+    // Pas connecté → afficher le choix
+    loadingEl.hidden = true;
+    choiceEl.hidden = false;
+
+    // Révéler la page
+    document.documentElement.classList.remove('arv-auth-hard-wait');
+  });
+
+  // Sécurité : timeout max 3s
+  setTimeout(() => {
+    if (resolved) return;
+    resolved = true;
+    loadingEl.hidden = true;
+    choiceEl.hidden = false;
+    document.documentElement.classList.remove('arv-auth-hard-wait');
+  }, 3000);
+
+  console.log('🚀 ARVEXA — Auth Choice (v2)');
+  </script>
+
+</body>
+</html>

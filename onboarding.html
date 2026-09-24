@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="theme-color" content="#0A0A0A">
+  <meta name="description" content="ARVEXA School - Bienvenue">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" href="icon.png" type="image/png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap">
+  <link rel="preload" as="image" href="icon.png" fetchpriority="high">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/arvexa-tokens.css">
+  <link rel="stylesheet" href="assets/arvexa-core.css">
+
+  <style>
+    body {
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+    }
+    .onb-shell {
+      flex: 1; width: 100%; max-width: 540px; margin: 0 auto;
+      padding: 0 20px 40px; display: flex; flex-direction: column;
+      justify-content: center;
+      animation: arvPageEnter .6s cubic-bezier(.25,1,.5,1);
+    }
+    @keyframes arvPageEnter {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .onb-header {
+      width: 100%; max-width: 540px; margin: 0 auto;
+      padding: 20px 20px 0; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+    }
+    .onb-logo {
+      display: inline-flex; text-decoration: none;
+      font-family: var(--font-serif);
+      font-size: clamp(18px, 3vw, 22px); font-weight: 700;
+      letter-spacing: .5px; color: var(--text-light);
+    }
+    .onb-logo span {
+      background: linear-gradient(90deg, var(--accent), var(--accent-bright), var(--accent));
+      background-size: 200% auto;
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-style: italic; margin: 0 1px;
+      animation: shimmerText 5s linear infinite;
+    }
+    .onb-step {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11.5px; font-weight: 600; color: var(--accent-bright);
+      padding: 6px 12px; border-radius: 20px;
+      background: rgba(184,134,11,.08);
+      border: 1px solid rgba(184,134,11,.15);
+      letter-spacing: .3px;
+    }
+    .onb-step i { font-size: 10px; }
+
+    .onb-hero { text-align: center; padding: 20px 0 24px; }
+    .onb-hero-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 72px; height: 72px; border-radius: 22px;
+      background: linear-gradient(135deg, rgba(184,134,11,.15), rgba(45,125,90,.1));
+      border: 1px solid rgba(184,134,11,.2);
+      font-size: 34px; margin-bottom: 20px;
+      animation: iconFloat 3s ease-in-out infinite;
+      position: relative;
+    }
+    @keyframes iconFloat {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+    .onb-hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(24px, 5vw, 32px);
+      font-weight: 700; line-height: 1.2;
+      letter-spacing: -0.02em; color: var(--text-light);
+      margin-bottom: 10px;
+    }
+    .onb-hero h1 em { color: var(--accent); font-style: italic; }
+    .onb-hero p {
+      font-size: clamp(13px, 1.8vw, 14.5px);
+      color: var(--text-dim); line-height: 1.65;
+      max-width: 380px; margin: 0 auto;
+    }
+
+    .onb-progress {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin: 20px 0 24px;
+    }
+    .onb-progress-dot {
+      width: 24px; height: 3px; border-radius: 3px;
+      background: rgba(255,255,255,.06);
+      transition: var(--transition);
+    }
+    .onb-progress-dot.done { background: linear-gradient(90deg, var(--accent), var(--accent-bright)); }
+    .onb-progress-dot.active {
+      background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+      width: 36px;
+    }
+    .onb-progress-label {
+      font-size: 11px; color: var(--text-muted);
+      margin-left: 8px; font-weight: 500;
+    }
+
+    .onb-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-xl);
+      padding: 26px 22px;
+      box-shadow: var(--shadow);
+      position: relative; overflow: hidden;
+    }
+    .onb-card::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-bright), var(--success), var(--accent));
+      background-size: 300% 100%;
+      animation: borderShimmer 6s linear infinite;
+    }
+    @keyframes borderShimmer {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 300% 0%; }
+    }
+
+    .onb-identity {
+      display: flex; flex-direction: column;
+      align-items: center; text-align: center;
+      padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.04);
+      margin-bottom: 20px;
+    }
+    .onb-avatar {
+      width: 66px; height: 66px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-bright), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-serif);
+      font-size: 26px; font-weight: 700;
+      color: var(--bg-dark); margin-bottom: 12px;
+      border: 3px solid rgba(184,134,11,.2);
+      box-shadow: 0 8px 24px rgba(184,134,11,.2);
+      animation: avatarPop .6s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes avatarPop {
+      from { opacity: 0; transform: scale(.5); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .onb-name {
+      font-size: clamp(17px, 2.4vw, 20px);
+      font-weight: 700; color: var(--text-light);
+      line-height: 1.3; margin-bottom: 4px;
+    }
+    .onb-email {
+      font-size: 12.5px; color: var(--text-dim);
+      word-break: break-all; line-height: 1.5;
+      max-width: 100%;
+    }
+
+    .onb-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px; margin-bottom: 20px;
+    }
+    .onb-info {
+      background: rgba(255,255,255,.02);
+      border: 1px solid rgba(255,255,255,.04);
+      border-radius: var(--radius);
+      padding: 14px 12px; text-align: center;
+      transition: var(--transition-fast);
+    }
+    .onb-info:hover {
+      background: rgba(184,134,11,.04);
+      border-color: rgba(184,134,11,.12);
+      transform: translateY(-2px);
+    }
+    .onb-info .info-icon { font-size: 20px; margin-bottom: 6px; display: block; line-height: 1; }
+    .onb-info .info-label {
+      font-size: 9.5px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .8px;
+      font-weight: 600; margin-bottom: 4px;
+    }
+    .onb-info .info-value {
+      font-size: clamp(12px, 1.5vw, 14px);
+      font-weight: 700; color: var(--text-light);
+      line-height: 1.3;
+      overflow-wrap: break-word; word-break: break-word;
+    }
+    .onb-info .info-value.gold { color: var(--accent-bright); }
+
+    .onb-subjects-title {
+      font-size: 11px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 1.2px;
+      margin-bottom: 10px; text-align: center;
+    }
+    .onb-subjects {
+      display: flex; flex-wrap: wrap;
+      justify-content: center; gap: 6px; margin-bottom: 22px;
+    }
+    .onb-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 20px;
+      background: rgba(184,134,11,.06);
+      border: 1px solid rgba(184,134,11,.1);
+      color: var(--accent-bright);
+      font-size: 11.5px; font-weight: 600;
+      transition: var(--transition-fast);
+      white-space: nowrap;
+    }
+    .onb-chip:hover {
+      background: rgba(184,134,11,.12);
+      transform: translateY(-1px);
+    }
+    .onb-chip i { font-size: 11px; opacity: .9; }
+
+    .onb-start {
+      width: 100%; padding: 15px 20px;
+      border: none; border-radius: 30px;
+      background: linear-gradient(135deg, var(--accent-bright), var(--accent));
+      color: #0A0A0A; font-family: inherit;
+      font-size: 15px; font-weight: 700;
+      letter-spacing: .3px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; transition: var(--transition);
+      min-height: 54px;
+      box-shadow: 0 4px 20px rgba(184,134,11,.2);
+    }
+    .onb-start:not(:disabled):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(184,134,11,.4);
+    }
+    .onb-start:not(:disabled):active { transform: scale(0.98); }
+    .onb-start:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+    .onb-start .spinner {
+      display: none; width: 18px; height: 18px;
+      border: 2px solid rgba(10,10,10,.2);
+      border-top-color: #0A0A0A;
+      border-radius: 50%;
+      animation: arvSpin .7s linear infinite;
+    }
+    .onb-start.loading .spinner { display: block; }
+    .onb-start.loading .btn-icon,
+    .onb-start.loading .btn-text { display: none; }
+
+    .onb-security {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-top: 14px;
+      font-size: 11px; color: var(--text-muted);
+      text-align: center;
+    }
+    .onb-security i { color: var(--success-light); font-size: 10px; }
+
+    .onb-footer {
+      margin-top: 28px; padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,.04);
+      text-align: center; font-size: 11px; color: var(--text-muted);
+    }
+
+    /* Skeleton */
+    .onb-skel { background: linear-gradient(90deg, rgba(255,255,255,.03) 25%, rgba(255,255,255,.06) 50%, rgba(255,255,255,.03) 75%); background-size: 200% 100%; animation: onbSkel 1.6s infinite; border-radius: 6px; }
+    @keyframes onbSkel { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .onb-skel-avatar { width: 66px; height: 66px; border-radius: 50%; margin: 0 auto 12px; }
+    .onb-skel-line { height: 14px; margin: 8px auto; }
+    .onb-skel-line.name { width: 60%; height: 18px; }
+    .onb-skel-line.email { width: 75%; }
+    .onb-skel-block { height: 70px; border-radius: var(--radius); }
+
+    @media (max-width: 480px) {
+      .onb-header { padding: 16px 16px 0; }
+      .onb-shell { padding: 0 16px 32px; }
+      .onb-hero { padding: 16px 0 20px; }
+      .onb-hero-icon { width: 62px; height: 62px; font-size: 28px; }
+      .onb-card { padding: 22px 18px; }
+      .onb-info-grid { gap: 8px; }
+      .onb-info { padding: 12px 10px; }
+      .onb-start { padding: 13px 18px; min-height: 50px; font-size: 14px; }
+    }
+    @media (max-width: 360px) {
+      .onb-info-grid { grid-template-columns: 1fr; gap: 6px; }
+      .onb-hero h1 { font-size: 22px; }
+      .onb-card { padding: 20px 14px; border-radius: 16px; }
+    }
+    @media (min-width: 768px) {
+      .onb-header { max-width: 560px; padding: 24px 24px 0; }
+      .onb-shell { max-width: 560px; padding: 0 24px 40px; }
+      .onb-card { padding: 32px 28px; }
+    }
+  </style>
+
+  <script src="assets/arvexa-transitions.js" defer></script>
+  <script src="register-sw.js" defer></script>
+</head>
+<body>
+
+  <header class="onb-header">
+    <a href="index.html" class="onb-logo">ARVEX<span>A School</span></a>
+    <div class="onb-step">
+      <i class="fas fa-flag-checkered"></i>
+      <span>Étape finale</span>
+    </div>
+  </header>
+
+  <main class="onb-shell">
+
+    <section class="onb-hero">
+      <div class="onb-hero-icon">🎓</div>
+      <h1>Bienvenue<br>sur <em>ARVEXA</em></h1>
+      <p>Tu es à un clic de commencer ton parcours vers la réussite au BAC.</p>
+    </section>
+
+    <div class="onb-progress">
+      <div class="onb-progress-dot done"></div>
+      <div class="onb-progress-dot active"></div>
+      <span class="onb-progress-label">Activation</span>
+    </div>
+
+    <div class="onb-card">
+
+      <!-- SKELETON -->
+      <div id="skeletonLoading">
+        <div class="onb-skel onb-skel-avatar"></div>
+        <div class="onb-skel onb-skel-line name"></div>
+        <div class="onb-skel onb-skel-line email"></div>
+        <div style="height:20px;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+          <div class="onb-skel onb-skel-block"></div>
+          <div class="onb-skel onb-skel-block"></div>
+        </div>
+        <div class="onb-skel" style="height:52px;border-radius:30px;"></div>
+      </div>
+
+      <!-- CONTENU DYNAMIQUE -->
+      <div id="dynamicContent" style="display:none;">
+
+        <div class="onb-identity">
+          <div class="onb-avatar" id="userAvatar">👤</div>
+          <div class="onb-name" id="userName">Chargement...</div>
+          <div class="onb-email" id="userEmail">—</div>
+        </div>
+
+        <div class="onb-info-grid">
+          <div class="onb-info">
+            <span class="info-icon">📚</span>
+            <div class="info-label">Classe</div>
+            <div class="info-value" id="userClass">Terminale D</div>
+          </div>
+          <div class="onb-info">
+            <span class="info-icon">🎯</span>
+            <div class="info-label">Objectif</div>
+            <div class="info-value gold" id="userGoal">BAC 2026</div>
+          </div>
+        </div>
+
+        <div class="onb-subjects-title">Matières disponibles</div>
+        <div class="onb-subjects">
+          <span class="onb-chip"><i class="fas fa-square-root-variable"></i> Mathématiques</span>
+          <span class="onb-chip"><i class="fas fa-bolt"></i> Physique</span>
+          <span class="onb-chip"><i class="fas fa-flask"></i> Chimie</span>
+          <span class="onb-chip"><i class="fas fa-dna"></i> SVT</span>
+        </div>
+
+        <button type="button" class="onb-start" id="startBtn">
+          <span class="btn-icon"><i class="fas fa-rocket"></i></span>
+          <span class="btn-text">Commencer l'aventure</span>
+          <span class="spinner"></span>
+        </button>
+
+        <div class="onb-security">
+          <i class="fas fa-lock"></i>
+          <span>Ton compte est sécurisé par Firebase</span>
+        </div>
+
+      </div>
+    </div>
+
+    <footer class="onb-footer">© 2026 ARVEXA School — Tous droits réservés</footer>
+  </main>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "firebase/auth": "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+  // ================================================================
+  // ONBOARDING.HTML — Logique métier
+  // ================================================================
+
+  import { auth, db } from './assets/arvexa-firebase.js';
+  import { authGuard, saveUserDataToCache } from './assets/arvexa-auth.js';
+  import { toast } from './assets/arvexa-ui.js';
+  import { doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+  // ================================================================
+  // DOM
+  // ================================================================
+  const $ = (id) => document.getElementById(id);
+  const skeletonLoading = $('skeletonLoading');
+  const dynamicContent = $('dynamicContent');
+  const startBtn = $('startBtn');
+  const userAvatar = $('userAvatar');
+  const userName = $('userName');
+  const userEmail = $('userEmail');
+  const userClass = $('userClass');
+  const userGoal = $('userGoal');
+
+  // ================================================================
+  // ÉTAT
+  // ================================================================
+  let state = { user: null, userData: null, isSubmitting: false };
+
+  // ================================================================
+  // HELPERS
+  // ================================================================
+  function getInitials(firstName, lastName) {
+    const f = (firstName || '').trim();
+    const l = (lastName || '').trim();
+    if (!f && !l) return '👤';
+    if (!l) return f.charAt(0).toUpperCase();
+    return (f.charAt(0) + l.charAt(0)).toUpperCase();
+  }
+  function getFullName(firstName, lastName) {
+    return [firstName, lastName].filter(Boolean).join(' ').trim() || 'Élève';
+  }
+  function getBacYear() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const june = new Date(year, 5, 1);
+    return now < june ? year : year + 1;
+  }
+
+  // ================================================================
+  // RENDU
+  // ================================================================
+  function renderUserData(data) {
+    if (!data) return;
+    const firstName = data.firstName || '';
+    const lastName = data.lastName || '';
+    userAvatar.textContent = getInitials(firstName, lastName);
+    userName.textContent = getFullName(firstName, lastName);
+    userEmail.textContent = data.email || '—';
+    userClass.textContent = data.classId === 'terminale_d' || !data.classId ? 'Terminale D' : data.classId;
+    userGoal.textContent = `BAC ${getBacYear()}`;
+
+    skeletonLoading.style.display = 'none';
+    dynamicContent.style.display = 'block';
+  }
+
+  // ================================================================
+  // BOUTON START
+  // ================================================================
+  async function handleStart() {
+    if (state.isSubmitting) return;
+    if (!state.user) {
+      toast('Session expirée. Reconnecte-toi.', 'error');
+      setTimeout(() => location.replace('login.html'), 1500);
+      return;
+    }
+
+    state.isSubmitting = true;
+    startBtn.disabled = true;
+    startBtn.classList.add('loading');
+
+    try {
+      await updateDoc(doc(db, 'users', state.user.uid), {
+        onboardingCompleted: true,
+        onboardingCompletedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      if (state.userData) {
+        state.userData.onboardingCompleted = true;
+        saveUserDataToCache(state.userData, state.user.uid);
+      }
+
+      toast('🎉 Bienvenue sur ARVEXA School !', 'success');
+      setTimeout(() => location.replace('index.html'), 800);
+
+    } catch (error) {
+      toast('Impossible de valider. Réessaie.', 'error', 5000);
+      setTimeout(() => {
+        state.isSubmitting = false;
+        startBtn.disabled = false;
+        startBtn.classList.remove('loading');
+      }, 2000);
+    }
+  }
+
+  startBtn.addEventListener('click', handleStart);
+
+  // ================================================================
+  // LANCER
+  // ================================================================
+  authGuard(async (user, cachedUserData) => {
+    state.user = user;
+
+    // Afficher vite avec le cache si dispo
+    if (cachedUserData) {
+      state.userData = cachedUserData;
+      renderUserData(cachedUserData);
+
+      // Déjà onboardé → index
+      if (cachedUserData.onboardingCompleted === true) {
+        location.replace('index.html');
+        return;
+      }
+    }
+
+    // Puis Firestore
+    try {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (!userDoc.exists()) {
+        toast('Profil introuvable. Redirection...', 'error');
+        setTimeout(() => location.replace('register.html'), 1500);
+        return;
+      }
+      const data = userDoc.data();
+      state.userData = data;
+      saveUserDataToCache(data, user.uid);
+
+      if (data.onboardingCompleted === true) {
+        location.replace('index.html');
+        return;
+      }
+      renderUserData(data);
+    } catch (error) {
+      if (cachedUserData) renderUserData(cachedUserData);
+      else {
+        skeletonLoading.style.display = 'none';
+        dynamicContent.style.display = 'block';
+      }
+    }
+  }, { hideWhileChecking: true });
+
+  console.log('🚀 ARVEXA — Onboarding (v2)');
+  </script>
+
+</body>
+</html>

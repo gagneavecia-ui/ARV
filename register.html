@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="theme-color" content="#0A0A0A">
+  <meta name="description" content="ARVEXA School - Créer ton compte">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" href="icon.png" type="image/png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap">
+  <link rel="preload" as="image" href="icon.png" fetchpriority="high">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/arvexa-tokens.css">
+  <link rel="stylesheet" href="assets/arvexa-core.css">
+
+  <style>
+    /* Reuse login styles — identiques volontairement */
+    .auth-shell {
+      flex: 1; width: 100%; max-width: 540px; margin: 0 auto;
+      padding: 0 20px 60px; display: flex; flex-direction: column;
+      justify-content: center;
+      animation: arvPageEnter .6s cubic-bezier(.25,1,.5,1);
+    }
+    @keyframes arvPageEnter {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .auth-header {
+      width: 100%; max-width: 540px; margin: 0 auto;
+      padding: 20px 20px 0; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+    }
+    .auth-logo {
+      display: inline-flex; text-decoration: none;
+      font-family: var(--font-serif);
+      font-size: clamp(18px, 3vw, 22px); font-weight: 700;
+      letter-spacing: .5px; color: var(--text-light);
+    }
+    .auth-logo span {
+      background: linear-gradient(90deg, var(--accent), var(--accent-bright), var(--accent));
+      background-size: 200% auto;
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-style: italic; margin-left: 4px;
+      animation: shimmerText 5s linear infinite;
+    }
+    .auth-header-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 500; color: var(--text-dim);
+      text-decoration: none; padding: 8px 14px; border-radius: 30px;
+      border: 1px solid var(--border-soft);
+      transition: var(--transition-fast); white-space: nowrap;
+    }
+    .auth-header-link:hover {
+      color: var(--text-light); border-color: rgba(184,134,11,.2);
+      background: rgba(184,134,11,.04);
+    }
+    .auth-header-link i { font-size: 11px; }
+
+    .auth-hero { text-align: center; padding: 24px 0 20px; }
+    .auth-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 30px;
+      background: rgba(184,134,11,.08);
+      border: 1px solid rgba(184,134,11,.15);
+      color: var(--accent-bright); font-size: 11px; font-weight: 600;
+      letter-spacing: .8px; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .auth-badge i { font-size: 12px; }
+    .auth-hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(28px, 6vw, 38px); font-weight: 700;
+      line-height: 1.15; letter-spacing: -0.02em;
+      color: var(--text-light); margin-bottom: 12px;
+    }
+    .auth-hero h1 em { color: var(--accent); font-style: italic; }
+    .auth-hero p {
+      font-size: clamp(13px, 1.8vw, 14.5px);
+      color: var(--text-dim); line-height: 1.6;
+      max-width: 380px; margin: 0 auto;
+    }
+
+    .auth-steps {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin: 20px 0 22px;
+    }
+    .auth-step-dot {
+      width: 24px; height: 3px; border-radius: 3px;
+      background: rgba(255,255,255,.06);
+      transition: var(--transition);
+    }
+    .auth-step-dot.active {
+      background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+      width: 36px;
+    }
+    .auth-step-label {
+      font-size: 11px; color: var(--text-muted);
+      margin-left: 8px; font-weight: 500;
+    }
+
+    .auth-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-xl);
+      padding: 28px 24px;
+      box-shadow: var(--shadow); position: relative; overflow: hidden;
+    }
+    .auth-card::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-bright), var(--success), var(--accent));
+      background-size: 300% 100%;
+      animation: borderShimmer 6s linear infinite;
+    }
+    @keyframes borderShimmer {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 300% 0%; }
+    }
+
+    .auth-field { margin-bottom: 18px; position: relative; }
+    .auth-field-label {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px; font-size: 12.5px; font-weight: 500;
+      color: var(--text-dim); letter-spacing: .2px;
+    }
+    .auth-field-label .optional {
+      font-size: 11px; color: var(--text-muted);
+      font-weight: 400; font-style: italic;
+    }
+    .auth-input-wrap {
+      position: relative; display: flex; align-items: center;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      transition: var(--transition-fast);
+      overflow: hidden;
+    }
+    .auth-input-wrap:focus-within {
+      border-color: rgba(184,134,11,.4);
+      background: rgba(184,134,11,.02);
+      box-shadow: 0 0 0 4px rgba(184,134,11,.06);
+    }
+    .auth-input-wrap.is-error {
+      border-color: rgba(231,76,60,.4);
+      background: rgba(231,76,60,.02);
+    }
+    .auth-input-wrap.is-success { border-color: rgba(45,125,90,.4); }
+    .auth-input-wrap .icon {
+      padding: 0 4px 0 16px; color: var(--text-muted);
+      font-size: 14px; flex-shrink: 0;
+      transition: var(--transition-fast);
+    }
+    .auth-input-wrap:focus-within .icon { color: var(--accent-bright); }
+    .auth-input-wrap.is-error .icon { color: var(--danger); }
+    .auth-input-wrap input {
+      flex: 1; min-width: 0;
+      padding: 13px 14px 13px 10px;
+      background: transparent; border: none; outline: none;
+      color: var(--text-light); font-size: 15px;
+      font-family: inherit;
+    }
+    .auth-input-wrap input::placeholder { color: var(--text-muted); }
+    .auth-input-wrap input:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 30px #1a1a1a inset !important;
+      -webkit-text-fill-color: var(--text-light) !important;
+    }
+    .auth-toggle-pwd {
+      position: absolute; right: 10px; top: 50%;
+      transform: translateY(-50%);
+      width: 32px; height: 32px; border-radius: 8px;
+      background: transparent; border: none;
+      color: var(--text-muted); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; transition: var(--transition-fast);
+    }
+    .auth-toggle-pwd:hover {
+      color: var(--accent-bright);
+      background: rgba(184,134,11,.08);
+    }
+
+    .name-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px; width: 100%; max-width: 100%;
+      overflow: hidden;
+    }
+    .name-row > * { min-width: 0; max-width: 100%; overflow: hidden; }
+    @media (max-width: 400px) {
+      .name-row { grid-template-columns: 1fr; gap: 0; }
+    }
+
+    .auth-field-help {
+      display: none; font-size: 11.5px; color: var(--text-muted);
+      margin-top: 6px; padding-left: 4px; line-height: 1.5;
+    }
+    .auth-field-help.visible { display: block; }
+    .auth-field-help.error { color: var(--danger); }
+
+    .pwd-strength {
+      margin-top: 10px; opacity: 0; max-height: 0; overflow: hidden;
+      transition: all .3s ease;
+    }
+    .pwd-strength.visible { opacity: 1; max-height: 60px; }
+    .pwd-strength-bar { display: flex; gap: 4px; margin-bottom: 6px; }
+    .pwd-strength-segment {
+      flex: 1; height: 3px; border-radius: 3px;
+      background: rgba(255,255,255,.06);
+      transition: background .3s ease;
+    }
+    .pwd-strength-segment.filled-1 { background: #E74C3C; }
+    .pwd-strength-segment.filled-2 { background: #E67E22; }
+    .pwd-strength-segment.filled-3 { background: #F1C40F; }
+    .pwd-strength-segment.filled-4 { background: #2ECC71; }
+    .pwd-strength-segment.filled-5 { background: #27AE60; }
+    .pwd-strength-text {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; color: var(--text-muted); padding-left: 2px;
+    }
+    .pwd-strength-text .label { font-weight: 600; transition: color .3s ease; }
+
+    .terms-box {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px; border-radius: var(--radius);
+      background: rgba(255,255,255,.015);
+      border: 1px solid rgba(255,255,255,.04);
+      margin: 22px 0 20px; cursor: pointer;
+      transition: var(--transition-fast);
+    }
+    .terms-box:hover {
+      background: rgba(255,255,255,.03);
+      border-color: rgba(184,134,11,.1);
+    }
+    .terms-box.is-error {
+      border-color: rgba(231,76,60,.3);
+      background: rgba(231,76,60,.03);
+    }
+    .terms-box input[type="checkbox"] {
+      appearance: none; -webkit-appearance: none;
+      width: 20px; height: 20px; min-width: 20px;
+      margin-top: 1px;
+      border: 2px solid rgba(255,255,255,.15);
+      border-radius: 6px; background: transparent;
+      cursor: pointer; position: relative;
+      transition: var(--transition-fast);
+    }
+    .terms-box input[type="checkbox"]:checked {
+      background: linear-gradient(135deg, var(--accent-bright), var(--accent));
+      border-color: var(--accent);
+    }
+    .terms-box input[type="checkbox"]:checked::after {
+      content: ''; position: absolute;
+      left: 5px; top: 1px;
+      width: 6px; height: 11px;
+      border: solid #0A0A0A;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .terms-box > span {
+      flex: 1; font-size: 12.5px; line-height: 1.6;
+      color: var(--text-dim); cursor: pointer;
+    }
+    .terms-box > span a {
+      color: var(--accent-bright); text-decoration: none;
+      font-weight: 500;
+    }
+    .terms-box > span a:hover { text-decoration: underline; }
+    .terms-error {
+      display: none; font-size: 11.5px; color: var(--danger);
+      margin-top: 6px; padding-left: 4px;
+    }
+    .terms-error.visible { display: block; }
+
+    .auth-submit {
+      width: 100%; padding: 15px 20px; border: none;
+      border-radius: 30px;
+      background: linear-gradient(135deg, var(--accent-bright), var(--accent));
+      color: #0A0A0A; font-family: inherit;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 10px;
+      transition: var(--transition);
+      min-height: 54px;
+      box-shadow: 0 4px 20px rgba(184,134,11,.15);
+    }
+    .auth-submit:not(:disabled):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(184,134,11,.35);
+    }
+    .auth-submit:not(:disabled):active { transform: scale(0.98); }
+    .auth-submit:disabled {
+      opacity: 0.35; cursor: not-allowed; box-shadow: none;
+    }
+    .auth-submit .spinner {
+      display: none; width: 18px; height: 18px;
+      border: 2px solid rgba(10,10,10,.2);
+      border-top-color: #0A0A0A;
+      border-radius: 50%;
+      animation: arvSpin .7s linear infinite;
+    }
+    .auth-submit.loading .spinner { display: block; }
+    .auth-submit.loading .btn-icon,
+    .auth-submit.loading .btn-text { display: none; }
+
+    .auth-security {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-top: 18px; font-size: 11.5px;
+      color: var(--text-muted);
+    }
+    .auth-security i { color: var(--success-light); font-size: 11px; }
+
+    .auth-footer {
+      margin-top: 32px; padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,.04);
+      text-align: center; font-size: 11px;
+      color: var(--text-muted); line-height: 1.6;
+    }
+    .auth-footer a {
+      color: var(--text-dim); text-decoration: none;
+      transition: var(--transition-fast);
+    }
+    .auth-footer a:hover { color: var(--accent-bright); }
+
+    @media (max-width: 480px) {
+      .auth-header { padding: 16px 16px 0; }
+      .auth-shell { padding: 0 16px 40px; }
+      .auth-hero { padding: 20px 0 18px; }
+      .auth-card { padding: 22px 18px; }
+      .name-row { gap: 10px; }
+      .auth-submit { padding: 13px 18px; min-height: 50px; font-size: 14px; }
+    }
+    @media (max-width: 360px) {
+      .name-row { grid-template-columns: 1fr; gap: 0; }
+      .auth-field { margin-bottom: 14px; }
+      .terms-box { padding: 12px; gap: 10px; }
+      .terms-box > span { font-size: 11.5px; }
+    }
+    @media (min-width: 768px) {
+      .auth-header { max-width: 560px; padding: 24px 24px 0; }
+      .auth-shell { max-width: 560px; padding: 0 24px 60px; }
+      .auth-card { padding: 32px 28px; }
+    }
+  </style>
+
+  <script src="assets/arvexa-transitions.js" defer></script>
+  <script src="register-sw.js" defer></script>
+</head>
+<body>
+
+  <header class="auth-header">
+    <a href="login.html" class="auth-logo">ARVEX<span>A School</span></a>
+    <a href="login.html" class="auth-header-link">
+      <i class="fas fa-sign-in-alt"></i>
+      <span>Connexion</span>
+    </a>
+  </header>
+
+  <main class="auth-shell">
+
+    <section class="auth-hero">
+      <div class="auth-badge">
+        <i class="fas fa-rocket"></i>
+        <span>Étape 1 sur 2</span>
+      </div>
+      <h1>Crée ton compte <em>ARVEXA</em></h1>
+      <p>Rejoins la communauté des élèves qui préparent leur BAC avec méthode et sérénité.</p>
+    </section>
+
+    <div class="auth-steps">
+      <div class="auth-step-dot active"></div>
+      <div class="auth-step-dot"></div>
+      <span class="auth-step-label">Inscription</span>
+    </div>
+
+    <div class="auth-card">
+      <form id="registerForm" novalidate autocomplete="on">
+
+        <div class="name-row">
+          <div class="auth-field">
+            <label class="auth-field-label" for="firstName">Prénom</label>
+            <div class="auth-input-wrap" id="firstNameWrap">
+              <span class="icon"><i class="fas fa-user"></i></span>
+              <input type="text" id="firstName" name="given-name"
+                     placeholder="Ton prénom" autocomplete="given-name"
+                     required maxlength="40">
+            </div>
+            <div class="auth-field-help" id="firstNameHelp"></div>
+          </div>
+          <div class="auth-field">
+            <label class="auth-field-label" for="lastName">Nom</label>
+            <div class="auth-input-wrap" id="lastNameWrap">
+              <span class="icon"><i class="fas fa-user"></i></span>
+              <input type="text" id="lastName" name="family-name"
+                     placeholder="Ton nom" autocomplete="family-name"
+                     required maxlength="40">
+            </div>
+            <div class="auth-field-help" id="lastNameHelp"></div>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label class="auth-field-label" for="email">Adresse e-mail</label>
+          <div class="auth-input-wrap" id="emailWrap">
+            <span class="icon"><i class="fas fa-envelope"></i></span>
+            <input type="email" id="email" name="email"
+                   placeholder="exemple@email.com"
+                   autocomplete="email" inputmode="email" required>
+          </div>
+          <div class="auth-field-help" id="emailHelp"></div>
+        </div>
+
+        <div class="auth-field">
+          <label class="auth-field-label" for="establishment">
+            Établissement <span class="optional">optionnel</span>
+          </label>
+          <div class="auth-input-wrap" id="establishmentWrap">
+            <span class="icon"><i class="fas fa-school"></i></span>
+            <input type="text" id="establishment" name="organization"
+                   placeholder="Nom de ton lycée"
+                   autocomplete="organization" maxlength="60">
+          </div>
+          <div class="auth-field-help" id="establishmentHelp"></div>
+        </div>
+
+        <div class="auth-field">
+          <label class="auth-field-label" for="password">Mot de passe</label>
+          <div class="auth-input-wrap" id="passwordWrap">
+            <span class="icon"><i class="fas fa-lock"></i></span>
+            <input type="password" id="password" name="new-password"
+                   placeholder="Minimum 6 caractères"
+                   autocomplete="new-password" required minlength="6">
+            <button type="button" class="auth-toggle-pwd" id="togglePassword">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <div class="pwd-strength" id="pwdStrength">
+            <div class="pwd-strength-bar">
+              <div class="pwd-strength-segment" data-seg="1"></div>
+              <div class="pwd-strength-segment" data-seg="2"></div>
+              <div class="pwd-strength-segment" data-seg="3"></div>
+              <div class="pwd-strength-segment" data-seg="4"></div>
+              <div class="pwd-strength-segment" data-seg="5"></div>
+            </div>
+            <div class="pwd-strength-text">
+              <span>Force du mot de passe</span>
+              <span class="label" id="pwdStrengthLabel">Très faible</span>
+            </div>
+          </div>
+          <div class="auth-field-help" id="passwordHelp"></div>
+        </div>
+
+        <div class="auth-field">
+          <label class="auth-field-label" for="confirmPassword">Confirmer le mot de passe</label>
+          <div class="auth-input-wrap" id="confirmWrap">
+            <span class="icon"><i class="fas fa-check-circle"></i></span>
+            <input type="password" id="confirmPassword" name="confirm-password"
+                   placeholder="Retape ton mot de passe"
+                   autocomplete="new-password" required>
+            <button type="button" class="auth-toggle-pwd" id="toggleConfirm">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <div class="auth-field-help" id="confirmHelp"></div>
+        </div>
+
+        <label class="terms-box" id="termsBox" for="termsCheckbox">
+          <input type="checkbox" id="termsCheckbox">
+          <span>
+            J'accepte les <a href="conditions.html" target="_blank">Conditions d'utilisation</a>
+            et la <a href="confidentialite.html" target="_blank">Politique de confidentialité</a>
+            d'ARVEXA School.
+          </span>
+        </label>
+        <div class="terms-error" id="termsError">
+          Tu dois accepter les conditions pour continuer.
+        </div>
+
+        <button type="submit" class="auth-submit" id="submitBtn" disabled>
+          <span class="btn-icon"><i class="fas fa-user-plus"></i></span>
+          <span class="btn-text">Créer mon compte</span>
+          <span class="spinner"></span>
+        </button>
+
+        <div class="auth-security">
+          <i class="fas fa-shield-alt"></i>
+          <span>Inscription sécurisée par Firebase</span>
+        </div>
+      </form>
+    </div>
+
+    <footer class="auth-footer">
+      Déjà membre ?
+      <a href="login.html">Se connecter</a> ·
+      <a href="#">Aide</a>
+    </footer>
+  </main>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "firebase/auth": "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+  // ================================================================
+  // REGISTER.HTML — Logique métier
+  // ================================================================
+
+  import { auth, db } from './assets/arvexa-firebase.js';
+  import { toast } from './assets/arvexa-ui.js';
+  import {
+    createUserWithEmailAndPassword, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+  import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+  // Masquer la page tant que l'auth n'est pas résolue
+  document.documentElement.classList.add('arv-auth-hard-wait');
+
+  // ================================================================
+  // DOM
+  // ================================================================
+  const $ = (id) => document.getElementById(id);
+  const form = $('registerForm');
+  const firstName = $('firstName');
+  const lastName = $('lastName');
+  const email = $('email');
+  const establishment = $('establishment');
+  const password = $('password');
+  const confirmPassword = $('confirmPassword');
+  const termsCheckbox = $('termsCheckbox');
+  const termsBox = $('termsBox');
+  const termsError = $('termsError');
+  const submitBtn = $('submitBtn');
+
+  const SAVE_KEY = 'arvexa_register_draft_v2';
+  const SESSION_KEY = 'arvexa_session';
+  const LAST_UID_KEY = 'arvexa_last_uid';
+
+  // ================================================================
+  // ÉTAT
+  // ================================================================
+  const state = {
+    values: { firstName: '', lastName: '', email: '', establishment: '', password: '', confirmPassword: '' },
+    touched: {},
+    isSubmitting: false,
+    isValid: false
+  };
+
+  // ================================================================
+  // RÉVÉLER LA PAGE
+  // ================================================================
+  function revealPage() {
+    document.documentElement.classList.remove('arv-auth-hard-wait');
+  }
+
+  // ================================================================
+  // DRAFT (persistence locale des champs, sauf mots de passe)
+  // ================================================================
+  function saveDraft() {
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        firstName: state.values.firstName,
+        lastName: state.values.lastName,
+        email: state.values.email,
+        establishment: state.values.establishment
+      }));
+    } catch (e) {}
+  }
+  function loadDraft() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      ['firstName', 'lastName', 'email', 'establishment'].forEach((key) => {
+        if (draft[key]) {
+          state.values[key] = draft[key];
+          const input = $(key);
+          if (input) input.value = draft[key];
+        }
+      });
+    } catch (e) {}
+  }
+  function clearDraft() {
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+  }
+
+  // ================================================================
+  // VALIDATORS
+  // ================================================================
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const NAME_REGEX = /^[a-zA-ZÀ-ÿ\s\-']+$/;
+  const ESTABLISHMENT_REGEX = /^[a-zA-ZÀ-ÿ0-9\s\-'.,()]+$/;
+
+  const validators = {
+    firstName: (v) => {
+      v = v.trim();
+      if (!v) return { valid: false, message: 'Le prénom est requis' };
+      if (v.length < 2) return { valid: false, message: 'Au moins 2 caractères' };
+      if (!NAME_REGEX.test(v)) return { valid: false, message: 'Caractères non autorisés' };
+      return { valid: true };
+    },
+    lastName: (v) => {
+      v = v.trim();
+      if (!v) return { valid: false, message: 'Le nom est requis' };
+      if (v.length < 2) return { valid: false, message: 'Au moins 2 caractères' };
+      if (!NAME_REGEX.test(v)) return { valid: false, message: 'Caractères non autorisés' };
+      return { valid: true };
+    },
+    email: (v) => {
+      v = v.trim();
+      if (!v) return { valid: false, message: "L'e-mail est requis" };
+      if (!EMAIL_REGEX.test(v)) return { valid: false, message: "Format d'e-mail invalide" };
+      return { valid: true };
+    },
+    establishment: (v) => {
+      v = v.trim();
+      if (!v) return { valid: true, optional: true };
+      if (!ESTABLISHMENT_REGEX.test(v)) return { valid: false, message: 'Caractères non autorisés' };
+      return { valid: true, optional: true };
+    },
+    password: (v) => {
+      if (!v) return { valid: false, message: 'Le mot de passe est requis' };
+      if (v.length < 6) return { valid: false, message: 'Au moins 6 caractères' };
+      return { valid: true };
+    },
+    confirmPassword: (v, ctx) => {
+      if (!v) return { valid: false, message: 'Confirme ton mot de passe' };
+      if (v !== ctx.password) return { valid: false, message: 'Les mots de passe ne correspondent pas' };
+      return { valid: true };
+    }
+  };
+
+  // ================================================================
+  // PASSWORD STRENGTH
+  // ================================================================
+  function getPasswordStrength(pwd) {
+    if (!pwd) return { score: 0, label: 'Très faible', color: '#E74C3C' };
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (pwd.length >= 12) score++;
+    if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++;
+    if (/\d/.test(pwd)) score++;
+    if (/[^a-zA-Z0-9]/.test(pwd)) score++;
+    score = Math.min(score, 5);
+    const map = {
+      0: { label: 'Très faible', color: '#E74C3C' },
+      1: { label: 'Très faible', color: '#E74C3C' },
+      2: { label: 'Faible', color: '#E67E22' },
+      3: { label: 'Moyen', color: '#F1C40F' },
+      4: { label: 'Fort', color: '#2ECC71' },
+      5: { label: 'Très fort', color: '#27AE60' }
+    };
+    return { score, ...map[score] };
+  }
+  function renderPasswordStrength(pwd) {
+    const container = $('pwdStrength');
+    const label = $('pwdStrengthLabel');
+    const segments = document.querySelectorAll('.pwd-strength-segment');
+    if (!pwd) { container.classList.remove('visible'); return; }
+    container.classList.add('visible');
+    const { score, label: lbl, color } = getPasswordStrength(pwd);
+    segments.forEach((seg, i) => {
+      seg.className = 'pwd-strength-segment';
+      if (i < score) seg.classList.add(`filled-${score}`);
+    });
+    label.textContent = lbl;
+    label.style.color = color;
+  }
+
+  // ================================================================
+  // RENDER FIELD
+  // ================================================================
+  function renderField(fieldId, result) {
+    const wrap = $(`${fieldId}Wrap`);
+    const help = $(`${fieldId}Help`);
+    const value = state.values[fieldId] || '';
+    const hasValue = value.trim().length > 0;
+    const isTouched = state.touched[fieldId];
+    const showError = !result.valid && (hasValue || isTouched);
+    const showOk = result.valid && hasValue && !result.optional;
+
+    wrap.classList.toggle('is-error', showError);
+    wrap.classList.toggle('is-success', showOk);
+
+    help.className = 'auth-field-help';
+    if (showError && result.message) {
+      help.classList.add('visible', 'error');
+      help.textContent = result.message;
+    } else {
+      help.textContent = '';
+    }
+  }
+
+  // ================================================================
+  // VALIDATION GLOBALE
+  // ================================================================
+  function validateAll() {
+    const results = {
+      firstName: validators.firstName(state.values.firstName),
+      lastName: validators.lastName(state.values.lastName),
+      email: validators.email(state.values.email),
+      establishment: validators.establishment(state.values.establishment),
+      password: validators.password(state.values.password),
+      confirmPassword: validators.confirmPassword(state.values.confirmPassword, { password: state.values.password })
+    };
+    const allOk = Object.values(results).every((r) => r.valid || r.optional);
+    const pwdOk = results.password.valid && results.confirmPassword.valid;
+    const termsOk = termsCheckbox.checked;
+    state.isValid = allOk && pwdOk && termsOk;
+    return { results, termsOk };
+  }
+
+  function updateSubmitButton() {
+    const { results, termsOk } = validateAll();
+    Object.keys(results).forEach((key) => renderField(key, results[key]));
+    termsBox.classList.toggle('is-error', !termsOk && state.touched.terms);
+    termsError.classList.toggle('visible', !termsOk && state.touched.terms);
+    submitBtn.disabled = !state.isValid || state.isSubmitting;
+    return state.isValid;
+  }
+
+  // ================================================================
+  // BINDING
+  // ================================================================
+  const FIELD_IDS = ['firstName', 'lastName', 'email', 'establishment', 'password', 'confirmPassword'];
+
+  FIELD_IDS.forEach((fieldId) => {
+    const input = $(fieldId);
+    input.addEventListener('input', () => {
+      state.values[fieldId] = input.value;
+      if (fieldId === 'password') renderPasswordStrength(input.value);
+      updateSubmitButton();
+      if (fieldId !== 'password' && fieldId !== 'confirmPassword') saveDraft();
+    });
+    input.addEventListener('blur', () => {
+      state.touched[fieldId] = true;
+      updateSubmitButton();
+    });
+  });
+
+  function setupTogglePwd(btnId, inputId) {
+    const btn = $(btnId);
+    const input = $(inputId);
+    btn.addEventListener('click', () => {
+      const isPwd = input.type === 'password';
+      input.type = isPwd ? 'text' : 'password';
+      btn.querySelector('i').className = isPwd ? 'fas fa-eye-slash' : 'fas fa-eye';
+    });
+  }
+  setupTogglePwd('togglePassword', 'password');
+  setupTogglePwd('toggleConfirm', 'confirmPassword');
+
+  termsCheckbox.addEventListener('change', () => {
+    state.touched.terms = true;
+    updateSubmitButton();
+  });
+
+  // ================================================================
+  // AUTH STATE — Redirection si déjà connecté
+  // ================================================================
+  let authResolved = false;
+  onAuthStateChanged(auth, (user) => {
+    if (authResolved) return;
+    authResolved = true;
+
+    if (user) {
+      // Déjà connecté → index
+      try {
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+          uid: user.uid, email: user.email, lastActive: Date.now()
+        }));
+        localStorage.setItem(LAST_UID_KEY, user.uid);
+      } catch (e) {}
+      location.replace('index.html');
+      return;
+    }
+
+    revealPage();
+  });
+  setTimeout(() => {
+    if (authResolved) return;
+    authResolved = true;
+    revealPage();
+  }, 2500);
+
+  // ================================================================
+  // SOUMISSION
+  // ================================================================
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (submitBtn.disabled || state.isSubmitting) return;
+
+    FIELD_IDS.forEach((id) => (state.touched[id] = true));
+    state.touched.terms = true;
+
+    if (!updateSubmitButton()) {
+      toast('Vérifie les champs en rouge', 'error', 3000);
+      return;
+    }
+
+    state.isSubmitting = true;
+    submitBtn.disabled = true;
+    submitBtn.classList.add('loading');
+
+    const emailValue = state.values.email.trim();
+    const passwordValue = state.values.password;
+    const firstNameValue = state.values.firstName.trim();
+    const lastNameValue = state.values.lastName.trim();
+    const establishmentValue = state.values.establishment.trim();
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, emailValue, passwordValue);
+      const user = cred.user;
+
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        firstName: firstNameValue,
+        lastName: lastNameValue,
+        fullName: `${firstNameValue} ${lastNameValue}`.trim(),
+        email: emailValue,
+        establishment: establishmentValue,
+        classId: 'terminale_d',
+        exam: 'bac',
+        role: 'student',
+        onboardingCompleted: false,
+        premium: false,
+        isUnlocked: false,
+        hasDeposited: false,
+        accountStatus: 'active',
+        totalStudyTime: 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      try {
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+          uid: user.uid, email: user.email, lastActive: Date.now()
+        }));
+        localStorage.setItem(LAST_UID_KEY, user.uid);
+      } catch (e) {}
+
+      clearDraft();
+      toast('Compte créé avec succès !', 'success');
+
+      setTimeout(() => location.replace('onboarding.html'), 800);
+
+    } catch (error) {
+      let message = 'Une erreur est survenue. Réessaie.';
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          message = 'Cette adresse e-mail est déjà utilisée.'; break;
+        case 'auth/invalid-email':
+          message = 'Adresse e-mail invalide.'; break;
+        case 'auth/weak-password':
+          message = 'Mot de passe trop faible (6 caractères min).'; break;
+        case 'auth/too-many-requests':
+          message = 'Trop de tentatives. Réessaie dans quelques minutes.'; break;
+        case 'auth/network-request-failed':
+          message = 'Problème de connexion. Vérifie ton réseau.'; break;
+        default:
+          message = error.message || message;
+      }
+      toast(message, 'error', 6000);
+      setTimeout(() => {
+        state.isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('loading');
+        updateSubmitButton();
+      }, 2000);
+    }
+  });
+
+  // ================================================================
+  // INITIALISATION
+  // ================================================================
+  loadDraft();
+  FIELD_IDS.forEach((id) => {
+    const input = $(id);
+    if (input && input.value) state.values[id] = input.value;
+  });
+  updateSubmitButton();
+  if (state.values.password) renderPasswordStrength(state.values.password);
+
+  console.log('🚀 ARVEXA — Register (v2)');
+  </script>
+
+</body>
+</html>

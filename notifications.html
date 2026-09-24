@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="theme-color" content="#0A0A0A">
+  <meta name="description" content="ARVEXA School - Notifications">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" href="icon.png" type="image/png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap">
+  <link rel="preload" as="image" href="icon.png" fetchpriority="high">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/arvexa-tokens.css">
+  <link rel="stylesheet" href="assets/arvexa-core.css">
+
+  <style>
+    /* Filtres */
+    .filters {
+      display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .filter-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 20px;
+      border: 1px solid var(--border-soft); background: transparent;
+      color: var(--text-muted); font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: var(--transition);
+      font-family: var(--font-body);
+    }
+    .filter-btn:hover:not(.active) {
+      color: var(--text-dim);
+      border-color: rgba(255,255,255,.1);
+    }
+    .filter-btn.active {
+      background: rgba(184,134,11,.12);
+      color: var(--accent-bright);
+      border-color: rgba(184,134,11,.25);
+    }
+    .filter-btn .count {
+      font-size: 10px; padding: 1px 6px;
+      border-radius: 8px; background: rgba(255,255,255,.06);
+    }
+    .filter-btn.active .count { background: rgba(184,134,11,.2); }
+
+    /* Notif list */
+    .notif-list {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .notif-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative; overflow: hidden;
+      animation: fadeInUp .4s cubic-bezier(.25,1,.5,1) backwards;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .notif-card:hover {
+      border-color: var(--card-border-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+    }
+    .notif-card.unread {
+      border-color: rgba(184,134,11,.15);
+      background: rgba(184,134,11,.03);
+    }
+    .notif-card.unread::before {
+      content: ''; position: absolute;
+      left: 0; top: 0; bottom: 0; width: 3px;
+      background: linear-gradient(180deg, var(--accent-bright), var(--accent));
+    }
+
+    .notif-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+      position: relative;
+    }
+    .notif-icon.info { background: rgba(74,175,224,.12); color: var(--info); }
+    .notif-icon.success { background: rgba(45,125,90,.12); color: var(--success-light); }
+    .notif-icon.warning { background: rgba(212,160,23,.12); color: var(--warning); }
+    .notif-icon.danger { background: rgba(184,92,58,.12); color: var(--danger-light); }
+    .notif-icon.announce { background: rgba(184,134,11,.12); color: var(--accent-bright); }
+
+    .notif-icon.unread-dot::after {
+      content: ''; position: absolute;
+      top: -2px; right: -2px; width: 10px; height: 10px;
+      border-radius: 50%; background: var(--info);
+      border: 2px solid var(--bg-dark);
+      box-shadow: 0 0 8px var(--info);
+      animation: pulseDot 2s ease-in-out infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: .7; }
+    }
+
+    .notif-content { flex: 1; min-width: 0; }
+    .notif-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 8px; margin-bottom: 4px;
+    }
+    .notif-title {
+      font-size: 14px; font-weight: 700;
+      color: var(--text-light); line-height: 1.3;
+      flex: 1; min-width: 0;
+    }
+    .notif-card.unread .notif-title { color: var(--accent-bright); }
+    .notif-time {
+      font-size: 11px; color: var(--text-muted);
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .notif-body {
+      font-size: 13px; color: var(--text-dim);
+      line-height: 1.5; overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .notif-card.unread .notif-body { color: var(--text-body); }
+
+    /* Modal détail */
+    .notif-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; visibility: hidden;
+      transition: all .3s cubic-bezier(.25,1,.5,1);
+    }
+    .notif-modal-overlay.show { opacity: 1; visibility: visible; }
+    .notif-modal-sheet {
+      width: 100%; max-width: 600px;
+      max-height: 85vh;
+      background: var(--bg-surface);
+      border-radius: 24px 24px 0 0;
+      border-top: 1px solid rgba(184,134,11,.15);
+      padding: 24px 20px calc(24px + var(--safe-bottom));
+      transform: translateY(100%);
+      transition: transform .4s cubic-bezier(.25,1,.5,1);
+      overflow-y: auto;
+      position: relative;
+    }
+    .notif-modal-overlay.show .notif-modal-sheet { transform: translateY(0); }
+    .notif-modal-sheet::before {
+      content: ''; position: absolute;
+      top: 8px; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 4px; border-radius: 2px;
+      background: rgba(255,255,255,.15);
+    }
+    .notif-modal-sheet::after {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      border-radius: 24px 24px 0 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent-bright), var(--accent));
+    }
+    .notif-modal-head {
+      display: flex; align-items: flex-start; gap: 14px;
+      margin: 12px 0 16px;
+    }
+    .notif-modal-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .notif-modal-icon.info { background: rgba(74,175,224,.15); color: var(--info); }
+    .notif-modal-icon.success { background: rgba(45,125,90,.15); color: var(--success-light); }
+    .notif-modal-icon.warning { background: rgba(212,160,23,.15); color: var(--warning); }
+    .notif-modal-icon.danger { background: rgba(184,92,58,.15); color: var(--danger-light); }
+    .notif-modal-icon.announce { background: rgba(184,134,11,.15); color: var(--accent-bright); }
+    .notif-modal-titles { flex: 1; min-width: 0; }
+    .notif-modal-title {
+      font-size: 18px; font-weight: 700;
+      color: var(--text-light);
+      font-family: var(--font-serif);
+      line-height: 1.3; margin-bottom: 4px;
+    }
+    .notif-modal-date { font-size: 12px; color: var(--text-muted); }
+    .notif-modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 34px; height: 34px; border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255,255,255,.03);
+      color: var(--text-muted); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; transition: var(--transition); z-index: 5;
+    }
+    .notif-modal-close:hover {
+      border-color: rgba(184,134,11,.25);
+      color: var(--text-light);
+      background: rgba(184,134,11,.1);
+    }
+    .notif-modal-body {
+      font-size: 15px; line-height: 1.75;
+      color: var(--text-body);
+      padding: 4px 0; white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    @media (max-width: 480px) {
+      .notif-card { padding: 12px 14px; gap: 12px; }
+      .notif-icon { width: 38px; height: 38px; font-size: 16px; }
+      .notif-title { font-size: 13px; }
+      .notif-body { font-size: 12.5px; }
+      .notif-time { font-size: 10.5px; }
+    }
+  </style>
+
+  <script src="assets/arvexa-transitions.js" defer></script>
+  <script src="register-sw.js" defer></script>
+</head>
+<body>
+
+  <div class="gradient-bg"></div>
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+
+  <div class="arv-sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="arv-sidebar" id="sidebar">
+    <a href="index.html" class="arv-logo">ARVEX<span>A School</span></a>
+    <nav class="arv-nav">
+      <a href="index.html"><i class="fas fa-home"></i> Accueil</a>
+      <a href="profil.html"><i class="fas fa-user"></i> Mon profil</a>
+      <a href="abonnement.html"><i class="fas fa-crown"></i> Mon abonnement</a>
+      <a href="notifications.html" class="active"><i class="fas fa-bell"></i> Notifications</a>
+      <div class="arv-nav-divider"></div>
+      <div class="arv-nav-bottom">
+        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="arv-main">
+
+    <header class="arv-header">
+      <div class="arv-header-left">
+        <button class="arv-icon-btn arv-header-menu-toggle" id="menuToggle" aria-label="Ouvrir le menu" style="border-radius:10px;background:transparent;border:1px solid var(--border-soft);">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="arv-page-title"><i class="fas fa-bell"></i> Notifications</h1>
+      </div>
+      <div class="arv-header-right">
+        <button class="arv-icon-btn" id="markAllReadBtn" disabled aria-label="Tout marquer comme lu" style="width:auto;padding:0 12px;border-radius:10px;font-size:12px;font-weight:600;display:flex;gap:6px;">
+          <i class="fas fa-check-double"></i>
+          <span>Tout lire</span>
+          <span id="unreadCountHeader" style="font-size:10px;background:rgba(255,255,255,.06);padding:1px 6px;border-radius:8px;">0</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="arv-container">
+
+      <div class="filters" id="filters" style="display:none;">
+        <button class="filter-btn active" data-filter="all">
+          <i class="fas fa-inbox"></i>
+          <span>Toutes</span>
+          <span class="count" id="countAll">0</span>
+        </button>
+        <button class="filter-btn" data-filter="unread">
+          <i class="fas fa-circle-dot"></i>
+          <span>Non lues</span>
+          <span class="count" id="countUnread">0</span>
+        </button>
+      </div>
+
+      <div class="notif-list" id="notifList">
+        <div class="arv-skeleton arv-skeleton-card"></div>
+        <div class="arv-skeleton arv-skeleton-card"></div>
+        <div class="arv-skeleton arv-skeleton-card"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="notif-modal-overlay" id="notifModal">
+    <div class="notif-modal-sheet" id="notifModalSheet"></div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "firebase/auth": "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+  // ================================================================
+  // NOTIFICATIONS.HTML — Logique métier
+  // ================================================================
+
+  import { auth, db } from './assets/arvexa-firebase.js';
+  import { authGuard, getCachedUserData, saveUserDataToCache, toDate } from './assets/arvexa-auth.js';
+  import { toast } from './assets/arvexa-ui.js';
+  import { signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+  import {
+    doc, collection, query, orderBy, limit, onSnapshot, updateDoc, writeBatch
+  } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+  const $ = (id) => document.getElementById(id);
+  const notifList = $('notifList');
+  const filtersEl = $('filters');
+  const countAll = $('countAll');
+  const countUnread = $('countUnread');
+  const unreadCountHeader = $('unreadCountHeader');
+  const markAllReadBtn = $('markAllReadBtn');
+  const modal = $('notifModal');
+  const modalSheet = $('notifModalSheet');
+
+  let allNotifications = [];
+  let currentFilter = 'all';
+  let unsubscribeNotifications = null;
+  let unsubscribeUser = null;
+  let currentUid = null;
+
+  // ================================================================
+  // HELPERS
+  // ================================================================
+  function formatRelativeTime(ts) {
+    const d = toDate(ts);
+    if (!d) return '';
+    const diffSec = Math.floor((Date.now() - d.getTime()) / 1000);
+    if (diffSec < 60) return 'À l\'instant';
+    const m = Math.floor(diffSec / 60);
+    if (m < 60) return `Il y a ${m} min`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `Il y a ${h}h`;
+    const dd = Math.floor(h / 24);
+    if (dd === 1) return 'Hier';
+    if (dd < 7) return `Il y a ${dd} jours`;
+    if (dd < 30) return `Il y a ${Math.floor(dd / 7)} sem.`;
+    if (dd < 365) return `Il y a ${Math.floor(dd / 30)} mois`;
+    return `Il y a ${Math.floor(dd / 365)} an${dd >= 730 ? 's' : ''}`;
+  }
+
+  function formatFullDate(ts) {
+    const d = toDate(ts);
+    if (!d) return '';
+    return d.toLocaleDateString('fr-FR', {
+      day: 'numeric', month: 'long', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  function getTypeConfig(type) {
+    const c = {
+      info: { icon: 'fa-circle-info' },
+      success: { icon: 'fa-circle-check' },
+      warning: { icon: 'fa-triangle-exclamation' },
+      danger: { icon: 'fa-circle-exclamation' },
+      announce: { icon: 'fa-bullhorn' }
+    };
+    return c[type] || c.info;
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = String(text || '');
+    return div.innerHTML;
+  }
+
+  // ================================================================
+  // RENDU
+  // ================================================================
+  function renderNotifications() {
+    let list = allNotifications;
+    if (currentFilter === 'unread') list = list.filter((n) => !n.read);
+
+    const totalCount = allNotifications.length;
+    const unreadCount = allNotifications.filter((n) => !n.read).length;
+
+    countAll.textContent = totalCount;
+    countUnread.textContent = unreadCount;
+    unreadCountHeader.textContent = unreadCount;
+    markAllReadBtn.disabled = unreadCount === 0;
+    filtersEl.style.display = totalCount > 0 ? 'flex' : 'none';
+
+    if (list.length === 0) {
+      if (totalCount === 0) {
+        notifList.innerHTML = `
+          <div class="arv-empty">
+            <div class="arv-empty-icon"><i class="fas fa-bell-slash"></i></div>
+            <h4>Aucune notification</h4>
+            <p>Tu recevras ici les annonces, les mises à jour et les informations importantes.</p>
+          </div>
+        `;
+      } else {
+        notifList.innerHTML = `
+          <div class="arv-empty">
+            <div class="arv-empty-icon"><i class="fas fa-check-circle"></i></div>
+            <h4>Tout est lu !</h4>
+            <p>Tu n'as aucune notification non lue.</p>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    notifList.innerHTML = list.map((n, i) => {
+      const cfg = getTypeConfig(n.type);
+      const isUnread = !n.read;
+      return `
+        <div class="notif-card ${isUnread ? 'unread' : ''}"
+             data-id="${n.id}"
+             style="animation-delay: ${Math.min(i * 0.03, 0.3)}s">
+          <div class="notif-icon ${n.type || 'info'} ${isUnread ? 'unread-dot' : ''}">
+            <i class="fas ${cfg.icon}"></i>
+          </div>
+          <div class="notif-content">
+            <div class="notif-header">
+              <div class="notif-title">${escapeHtml(n.title || 'Notification')}</div>
+              <div class="notif-time">${escapeHtml(formatRelativeTime(n.createdAt))}</div>
+            </div>
+            <div class="notif-body">${escapeHtml(n.body || '')}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    notifList.querySelectorAll('.notif-card').forEach((card) => {
+      card.addEventListener('click', () => openNotifDetail(card.dataset.id));
+    });
+  }
+
+  // ================================================================
+  // DÉTAIL
+  // ================================================================
+  async function openNotifDetail(id) {
+    const notif = allNotifications.find((n) => n.id === id);
+    if (!notif) return;
+
+    const cfg = getTypeConfig(notif.type);
+
+    if (!notif.read && currentUid) {
+      try {
+        await updateDoc(doc(db, 'users', currentUid, 'notifications', id), { read: true });
+      } catch (e) {}
+    }
+
+    modalSheet.innerHTML = `
+      <button class="notif-modal-close" id="notifModalCloseBtn"><i class="fas fa-xmark"></i></button>
+      <div class="notif-modal-head">
+        <div class="notif-modal-icon ${notif.type || 'info'}">
+          <i class="fas ${cfg.icon}"></i>
+        </div>
+        <div class="notif-modal-titles">
+          <div class="notif-modal-title">${escapeHtml(notif.title || 'Notification')}</div>
+          <div class="notif-modal-date">${escapeHtml(formatFullDate(notif.createdAt))}</div>
+        </div>
+      </div>
+      <div class="notif-modal-body">${escapeHtml(notif.body || 'Aucun contenu.')}</div>
+    `;
+
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+
+    $('notifModalCloseBtn').addEventListener('click', closeNotifDetail);
+    setupModalSwipe(modalSheet);
+  }
+
+  function closeNotifDetail() {
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function setupModalSwipe(sheet) {
+    let startY = 0, currentY = 0, isDragging = false;
+    sheet.addEventListener('touchstart', (e) => {
+      const rect = sheet.getBoundingClientRect();
+      if (e.touches[0].clientY - rect.top < 80) {
+        startY = e.touches[0].clientY;
+        currentY = startY;
+        isDragging = true;
+        sheet.style.transition = 'none';
+      }
+    }, { passive: true });
+    sheet.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      currentY = e.touches[0].clientY;
+      const diff = currentY - startY;
+      if (diff > 0) {
+        sheet.style.transform = `translateY(${diff}px)`;
+        e.preventDefault();
+      }
+    }, { passive: false });
+    sheet.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      sheet.style.transition = '';
+      const diff = currentY - startY;
+      if (diff > 100) {
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => {
+          modal.classList.remove('show');
+          sheet.style.transform = '';
+        }, 300);
+      } else sheet.style.transform = '';
+      startY = 0; currentY = 0;
+    }, { passive: true });
+  }
+
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeNotifDetail(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('show')) closeNotifDetail();
+  });
+
+  // ================================================================
+  // TOUT MARQUER COMME LU
+  // ================================================================
+  async function markAllAsRead() {
+    if (!currentUid) return;
+    const unread = allNotifications.filter((n) => !n.read);
+    if (unread.length === 0) return;
+
+    markAllReadBtn.disabled = true;
+    try {
+      const batch = writeBatch(db);
+      unread.forEach((n) => {
+        batch.update(doc(db, 'users', currentUid, 'notifications', n.id), { read: true });
+      });
+      await batch.commit();
+      toast(`${unread.length} notification${unread.length > 1 ? 's' : ''} marquée${unread.length > 1 ? 's' : ''}`, 'success');
+    } catch (e) {
+      toast('Impossible de marquer comme lu', 'error');
+      markAllReadBtn.disabled = false;
+    }
+  }
+  markAllReadBtn.addEventListener('click', markAllAsRead);
+
+  // ================================================================
+  // FILTRES
+  // ================================================================
+  filtersEl.querySelectorAll('.filter-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      currentFilter = btn.dataset.filter;
+      filtersEl.querySelectorAll('.filter-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderNotifications();
+    });
+  });
+
+  // ================================================================
+  // CHARGEMENT
+  // ================================================================
+  function loadNotifications(user) {
+    if (unsubscribeNotifications) unsubscribeNotifications();
+    const q = query(
+      collection(db, 'users', user.uid, 'notifications'),
+      orderBy('createdAt', 'desc'),
+      limit(50)
+    );
+    unsubscribeNotifications = onSnapshot(q, (snap) => {
+      allNotifications = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      renderNotifications();
+    }, (err) => {
+      allNotifications = [];
+      renderNotifications();
+    });
+  }
+
+  function loadUserRealtime(user) {
+    if (unsubscribeUser) unsubscribeUser();
+    unsubscribeUser = onSnapshot(doc(db, 'users', user.uid), (snap) => {
+      if (snap.exists()) saveUserDataToCache(snap.data(), user.uid);
+    }, () => {});
+  }
+
+  // ================================================================
+  // DÉCONNEXION
+  // ================================================================
+  async function performLogout() {
+    if (unsubscribeNotifications) unsubscribeNotifications();
+    if (unsubscribeUser) unsubscribeUser();
+    try { await signOut(auth); } catch (e) {}
+    try {
+      localStorage.removeItem('arvexa_session');
+      localStorage.removeItem('arvexa_user_data');
+      localStorage.removeItem('arvexa_last_uid');
+    } catch (e) {}
+    location.replace('login.html');
+  }
+
+  $('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); performLogout(); });
+  $('menuToggle').addEventListener('click', () => {
+    $('sidebar').classList.toggle('open');
+    $('sidebarOverlay').classList.toggle('active');
+  });
+  $('sidebarOverlay').addEventListener('click', () => {
+    $('sidebar').classList.remove('open');
+    $('sidebarOverlay').classList.remove('active');
+  });
+
+  // ================================================================
+  // LANCER
+  // ================================================================
+  authGuard(async (user) => {
+    currentUid = user.uid;
+    loadNotifications(user);
+    loadUserRealtime(user);
+  });
+
+  console.log('🚀 ARVEXA — Notifications (v2 mutualisée)');
+  </script>
+
+</body>
+</html>

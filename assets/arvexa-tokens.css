@@ -1,0 +1,71 @@
+/* ================================================================
+   ARVEXA TOKENS — Variables CSS partagées par toutes les pages
+   Chargé en premier. Aucune règle, uniquement des variables.
+   ================================================================ */
+
+:root {
+  /* Couleurs primaires */
+  --primary: #1A3A2A;
+  --primary-dark: #0A1A12;
+  --primary-light: #2A5A3A;
+
+  /* Accent doré */
+  --accent: #B8860B;
+  --accent-bright: #E0B84A;
+  --accent-dim: rgba(184, 134, 11, 0.08);
+
+  /* Statuts */
+  --success: #2D7D5A;
+  --success-light: #3AB67E;
+  --danger: #B85C3A;
+  --danger-light: #E07A5F;
+  --warning: #D4A017;
+  --info: #4AAFE0;
+  --blue: #60a5fa;
+
+  /* Fonds */
+  --bg-dark: #0A0A0A;
+  --bg-surface: #141414;
+  --bg-card: rgba(20, 20, 20, 0.7);
+  --bg-elevated: rgba(255, 255, 255, 0.02);
+
+  /* Textes */
+  --text-light: #F5F0E8;
+  --text-dim: #8A8A7A;
+  --text-muted: #5A5A4A;
+  --text-body: #cfd0cc;
+
+  /* Bordures */
+  --card-border: rgba(184, 134, 11, 0.08);
+  --card-border-hover: rgba(184, 134, 11, 0.2);
+  --border-soft: rgba(255, 255, 255, 0.05);
+
+  /* Transitions */
+  --transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-fast: all 0.15s ease;
+
+  /* Ombres */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+  /* Rayons */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --header-height: 64px;
+  --content-max: 720px;
+
+  /* Fonts */
+  --font-body: 'Inter', 'Segoe UI', Arial, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Consolas', monospace;
+
+  /* Safe area (iOS) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
